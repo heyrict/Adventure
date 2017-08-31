@@ -1,0 +1,9 @@
+# python cache
+*.pyc
+__pycache__
+
+# log
+log.txt
+
+# pickle files
+*.pickle
