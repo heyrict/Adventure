@@ -27,6 +27,17 @@ def loadGame(filename="autosave"):
     with open(filename+".pickle", "rb") as f:
         return pickle.load(f)
 
+def unalias(aliases, line):
+    returns = []
+    for l in line.split(';'):
+        splitted = l.split()
+        if len(splitted) == 0: return ""
+        if splitted[0] in aliases:
+            unaliased = aliases[splitted[0]].format(*splitted[1:])
+            returns.extend(unalias(aliases, unaliased))
+        else: returns.append(l)
+    return returns
+
 if __name__ == "__main__":
     helpstr = '''
     Commands
@@ -47,9 +58,13 @@ if __name__ == "__main__":
     kill <name> [<byname>]              user dead
     in <indicator>                      set indicator
     alias <name> <command>              alias a command (see `help alias`)
+    aliases                             list aliases
+    echo, print <message>               literally print line
     help, h                             print this help string
-    save, w <file>                      save current state to file
-    load <file>                         load current state from file
+    save, w <file>                      save current state to file (default: autosave)
+    savealias <file>                    save current alias to file (default: aliases)
+    load <file>                         load state from file (default: autosave)
+    loadalias <file>                    load aliases from file (default: aliases)
     wq <file>                           save & exit
     quit, exit, q                       quit program
     '''
@@ -87,14 +102,19 @@ if __name__ == "__main__":
         try:
             if cmdQueue == []:
                 cmdQueue.append(input(c(indicator, "yellow")))
-            cmd = cmdQueue.pop(0).split()
+            cmdl = cmdQueue.pop(0)
+            cmd = cmdl.split(maxsplit=2)
             if len(cmd) == 0: continue
-            if cmd[0] in aliases:
-                cmdQueue.extend(aliases[cmd[0]].format(*cmd[1:]).split(';'))
-                cmd = cmdQueue.pop(0).split()
 
             if cmd[0] in ['alias']:
                 aliases[cmd[1]] = " ".join(cmd[2:])
+                continue
+
+            cmdQueue.extend(unalias(aliases, cmdl))
+            cmd = cmdQueue.pop(0).split()
+
+            if cmd[0] in ['aliases']:
+                print("aliases:",aliases)
             elif cmd[0] in ['ua', 'add-user']:
                 game.add_user(cmd[1], cmd[2], cmd[3:])
             elif cmd[0] in ['pa', 'add-place']:
@@ -128,6 +148,8 @@ if __name__ == "__main__":
                 game.kill_user(cmd[1], " ".join(cmd[2:]))
             elif cmd[0] in ['in']:
                 indicator = cmd[1]
+            elif cmd[0] in ['echo', 'print']:
+                print(" ".join(cmd[1:]))
             elif cmd[0] in ['help', 'h']:
                 if "".join(cmd[1:]) == "alias":
                     print(help_alias_str)
@@ -137,9 +159,17 @@ if __name__ == "__main__":
                 filename = "".join(cmd[1:])
                 dumpGame(game, filename if filename else "autosave")
                 print("Save succeed")
+            elif cmd[0] in ['savealias']:
+                filename = "".join(cmd[1:])
+                dumpGame(aliases, filename if filename else "aliases")
+                print("Save succeed")
             elif cmd[0] in ['load']:
                 filename = "".join(cmd[1:])
                 game = loadGame(filename if filename else "autosave")
+                print("Load succeed")
+            elif cmd[0] in ['loadalias']:
+                filename = "".join(cmd[1:])
+                aliases = loadGame(filename if filename else "aliases")
                 print("Load succeed")
             elif cmd[0] in ['wq']:
                 filename = "".join(cmd[1:])
