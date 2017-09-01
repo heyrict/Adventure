@@ -19,11 +19,19 @@ def placeinfo(game, name):
     print("Users:","  ".join([c(i.name,"red") for i in place.users]))
     print("Items:","\n  ".join(place.items))
 
+def dumpGame(game, filename="autosave"):
+    with open(filename+".pickle", "wb") as f:
+        pickle.dump(game, f, protocol=2)
+
+def loadGame(filename="autosave"):
+    with open(filename+".pickle", "rb") as f:
+        return pickle.load(f)
+
 if __name__ == "__main__":
     helpstr = '''
     Commands
     --------
-    ua, add-user <name>                 add user
+    ua, add-user <name> <place> <items> add user
     pa, add-place <name> <items>        add place
     ul, us                              list users
     pl, ps                              list places
@@ -51,7 +59,7 @@ if __name__ == "__main__":
             cmd = input(indicator).split()
             if len(cmd) == 0: continue
             if cmd[0] in ['ua', 'add-user']:
-                game.add_user(cmd[1])
+                game.add_user(cmd[1], cmd[2], cmd[3:])
             elif cmd[0] in ['pa', 'add-place']:
                 game.add_place(cmd[1], cmd[2:])
             elif cmd[0] in ['ul', 'us']:
@@ -86,19 +94,16 @@ if __name__ == "__main__":
             elif cmd[0] in ['help', 'h']:
                 print(helpstr)
             elif cmd[0] in ['save','w']:
-                with open('_'.join(cmd[1:])+".pickle" if len(cmd)>=1
-                        else "temp.pickle", "wb") as f:
-                    pickle.dump(game, f)
-                    print("Save succeed")
+                filename = "".join(cmd[1:])
+                dumpGame(game, filename if filename else "autosave")
+                print("Save succeed")
             elif cmd[0] in ['load']:
-                with open('_'.join(cmd[1:])+".pickle" if len(cmd)>=1
-                        else "temp.pickle", "rb") as f:
-                    game = pickle.load(f)
-                    print("Load succeed")
+                filename = "".join(cmd[1:])
+                game = loadGame(filename if filename else "autosave")
+                print("Load succeed")
             elif cmd[0] in ['wq']:
-                with open('_'.join(cmd[1:])+".pickle" if len(cmd)>=1
-                        else "temp.pickle", "wb") as f:
-                    pickle.dump(game, f)
+                filename = "".join(cmd[1:])
+                dumpGame(game, filename if filename else "autosave")
                 print("Save succeed.\n\nThank you for playing. Bye!")
                 break
             elif cmd[0] in ['quit', 'exit', 'q']:
@@ -108,9 +113,8 @@ if __name__ == "__main__":
                 raise ValueError("Command unable to recognize")
 
         except (KeyboardInterrupt, EOFError) as e:
-            with open("temp.pickle", "wb") as f:
-                pickle.dump(game, f)
-                print("\nSave current status to temp.pickle. Exiting.")
+                dumpGame(game, "autosave")
+                print("\nSave current status to autosave.pickle. Exiting.")
                 exit(0)
         except Exception as e:
             print(e)

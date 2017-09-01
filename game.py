@@ -9,9 +9,12 @@ class Logger():
     def __init__(self, logfilename):
         self.fn = logfilename
 
-    def write(self, *args):
-        sep = ' ' if kwargs['sep']==None else kwargs['sep']
-        end = '\n' if kwargs['end']==None else kwargs['end']
+    def write(self, *args, **kwargs):
+        try: sep = kwargs['sep']
+        except: sep = ' '
+        try: end = kwargs['end']
+        except: end = '\n'
+
         l2w = sep.join([str(i) for i in args]) + end
         l2w = "#" + datetime.now().strftime("%Y-%m-%d %H:%M:%S")\
                 + "# " + l2w
@@ -48,7 +51,7 @@ class Game():
             return
 
         if initplace == None:
-            initplace = self.place[0]
+            initplace = self.places[0]
         elif isinstance(initplace, Place):
             if initplace not in self.places:
                 raise ValueError("add_user: initplace not in places")
