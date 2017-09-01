@@ -71,17 +71,27 @@ if __name__ == "__main__":
         alias mypa pa a_{0}_place_of_{1} {0}_juice {0}_cake
         mypa tasty chocolate
         # equivalent to `pa a_tasty_place_of_chocolate tasty_juice tasty_cake`
+
+        alias mynewua pa room{0} tons_of_books; ua {0} book
+        mynewua Kitty
+        # equivalent to:
+        # `pa roomKitty tons_of_books`
+        # `ua Kitty book`
     '''
 
     game = Game(sys.argv[1] if len(sys.argv) > 1 else "party")
     indicator = "<"+game.name+">: "
     aliases = {}
+    cmdQueue = []
     while True:
         try:
-            cmd = input(c(indicator, "yellow")).split()
+            if cmdQueue == []:
+                cmdQueue.append(input(c(indicator, "yellow")))
+            cmd = cmdQueue.pop(0).split()
             if len(cmd) == 0: continue
             if cmd[0] in aliases:
-                cmd = aliases[cmd[0]].format(*cmd[1:]).split()
+                cmdQueue.extend(aliases[cmd[0]].format(*cmd[1:]).split(';'))
+                cmd = cmdQueue.pop(0).split()
 
             if cmd[0] in ['alias']:
                 aliases[cmd[1]] = " ".join(cmd[2:])
