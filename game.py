@@ -1,6 +1,6 @@
 from __future__ import print_function
-#from six.moves import cPickle as pickle
-#from six.moves import range
+from six.moves import cPickle as pickle
+from six.moves import range
 import re
 from datetime import datetime
 
@@ -9,7 +9,9 @@ class Logger():
     def __init__(self, logfilename):
         self.fn = logfilename
 
-    def write(self, *args, sep=' ', end="\n"):
+    def write(self, *args):
+        sep = ' ' if kwargs['sep']==None else kwargs['sep']
+        end = '\n' if kwargs['end']==None else kwargs['end']
         l2w = sep.join([str(i) for i in args]) + end
         l2w = "#" + datetime.now().strftime("%Y-%m-%d %H:%M:%S")\
                 + "# " + l2w

@@ -1,19 +1,12 @@
 # -*- coding: utf8 -*-
 from __future__ import print_function
 from game import *
-#from six.moves import cPickle as pickle
-#from six.moves import range
-#from six.moves import input
+from six.moves import cPickle as pickle
+from six.moves import range
+from six.moves import input
 import pickle
 import random
-
-#class PartyGame(Game):
-#    def add_user(self, username):
-#        randitem = random.choice(['knife_ナイフ',
-#                'driver_ドライバー','scissers_ハサミ'])
-#        self.add_place("room"+username,[randitem, 'key_鍵', 'book_本',
-#                'lamp_ランプ', 'letter_招待状'])
-#        super(PartyGame, self).add_user(username, "room"+username, ["clothes_服"])
+import sys
 
 
 def userinfo(game, name):
@@ -51,12 +44,11 @@ if __name__ == "__main__":
     wq <file>                           save & exit
     quit, exit, q                       quit program
     '''
-    game = PartyGame("party")
+    game = Game("party")
     indicator = c("<"+game.name+">:", "yellow")
     while True:
         try:
-            print(indicator, end="")
-            cmd = input().split()
+            cmd = input(indicator).split()
             if len(cmd) == 0: continue
             if cmd[0] in ['ua', 'add-user']:
                 game.add_user(cmd[1])
@@ -115,11 +107,10 @@ if __name__ == "__main__":
             else:
                 raise ValueError("Command unable to recognize")
 
-        except Exception as e:
-            print(type(e))
-            if isinstance(e, (KeyboardInterrupt, EOFError)):
-                with open("temp.pickle", "wb") as f:
-                    pickle.dump(game, f)
-                print("Save current status to temp.pickle. Exiting.")
+        except (KeyboardInterrupt, EOFError) as e:
+            with open("temp.pickle", "wb") as f:
+                pickle.dump(game, f)
+                print("\nSave current status to temp.pickle. Exiting.")
                 exit(0)
-            else: print(e)
+        except Exception as e:
+            print(e)
