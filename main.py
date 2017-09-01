@@ -6,7 +6,7 @@ from six.moves import range
 from six.moves import input
 import pickle
 import random
-import sys
+import sys, os
 
 
 def userinfo(game, name):
@@ -46,19 +46,46 @@ if __name__ == "__main__":
     um, mv <name> <dest>                user move place
     kill <name> [<byname>]              user dead
     in <indicator>                      set indicator
+    alias <name> <command>              alias a command (see `help alias`)
     help, h                             print this help string
     save, w <file>                      save current state to file
     load <file>                         load current state from file
     wq <file>                           save & exit
     quit, exit, q                       quit program
     '''
-    game = Game("party")
-    indicator = c("<"+game.name+">:", "yellow")
+    help_alias_str = '''
+    Alias
+    -----
+    Usage: alias <name> <command>
+
+    <name>
+        name of your new command
+
+    <command>
+        a python string for formatting
+
+    Examples:
+        alias myua ua {} myplace myitem
+        myua me # equivalent to `ua me myplace myitem`
+
+        alias mypa pa a_{0}_place_of_{1} {0}_juice {0}_cake
+        mypa tasty chocolate
+        # equivalent to `pa a_tasty_place_of_chocolate tasty_juice tasty_cake`
+    '''
+
+    game = Game(sys.argv[1] if len(sys.argv) > 1 else "party")
+    indicator = "<"+game.name+">: "
+    aliases = {}
     while True:
         try:
-            cmd = input(indicator).split()
+            cmd = input(c(indicator, "yellow")).split()
             if len(cmd) == 0: continue
-            if cmd[0] in ['ua', 'add-user']:
+            if cmd[0] in aliases:
+                cmd = aliases[cmd[0]].format(*cmd[1:]).split()
+
+            if cmd[0] in ['alias']:
+                aliases[cmd[1]] = " ".join(cmd[2:])
+            elif cmd[0] in ['ua', 'add-user']:
                 game.add_user(cmd[1], cmd[2], cmd[3:])
             elif cmd[0] in ['pa', 'add-place']:
                 game.add_place(cmd[1], cmd[2:])
@@ -92,7 +119,10 @@ if __name__ == "__main__":
             elif cmd[0] in ['in']:
                 indicator = cmd[1]
             elif cmd[0] in ['help', 'h']:
-                print(helpstr)
+                if "".join(cmd[1:]) == "alias":
+                    print(help_alias_str)
+                else:
+                    print(helpstr)
             elif cmd[0] in ['save','w']:
                 filename = "".join(cmd[1:])
                 dumpGame(game, filename if filename else "autosave")
