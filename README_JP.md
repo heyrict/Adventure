@@ -7,12 +7,7 @@ ADVENTURE
 
 Pre-Requisition
 ---------------
-python3(recommended) or python2
-
-python3 の場合はこのまま使います。
-
-python2 の場合２つのpyファイルの最初の`#import six`の
-`#`を取り除く必要があります。
+- python3 or python2: ダウンロードリンクは[こちら](https://www.python.org/downloads/)
 
 Usage
 -----
@@ -25,7 +20,7 @@ python3 main.py
 ```
     Commands
     --------
-    ua, add-user <name>                 add user
+    ua, add-user <name> <place> <items> add user
     pa, add-place <name> <items>        add place
     ul, us                              list users
     pl, ps                              list places
@@ -40,9 +35,14 @@ python3 main.py
     um, mv <name> <dest>                user move place
     kill <name> [<byname>]              user dead
     in <indicator>                      set indicator
+    alias <name> <command>              alias a command (see `help alias`)
+    aliases                             list aliases
+    echo, print <message>               literally print line
     help, h                             print this help string
-    save, w <file>                      save current state to file
-    load <file>                         load current state from file
+    save, w <file>                      save current state to file (default: autosave)
+    savealias <file>                    save current alias to file (default: aliases)
+    load <file>                         load state from file (default: autosave)
+    loadalias <file>                    load aliases from file (default: aliases)
     wq <file>                           save & exit
     quit, exit, q                       quit program
 ```
@@ -53,6 +53,6 @@ TODO
 
 CONTRIBUTE
 ----------
-このプログラムはライセンスがない。自由に編集またはコピー出来ます。
+このプログラムはライセンスがありません。自由に編集またはコピー出来ます。
 
 **Pull requests are welcomed!**
